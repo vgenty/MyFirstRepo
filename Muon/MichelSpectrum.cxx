@@ -18,14 +18,46 @@ namespace larlite {
     
     _event_counter = 0;
     
+    _muon_E = new TH1D("muon_energy","x;y;title",1000,0,1e4);
+    
     return true;
   }
   
   bool MichelSpectrum::analyze(storage_manager* storage) {
     
-    std::cout << "I am being called " << _event_counter << "\n";
+    //std::cout << "I am being called " << _event_counter << "\n";
     _event_counter++;
 
+    //auto : like python, I don't to specify the type of variable, i will let the g++ decide for me
+    //event_mctracks : just the name of variable
+    //storage: is the pointer to the file manager
+    //get_data: is a template function and im asking it in <...> to give me a specific type of data
+    //("...") is where we specify the ``producer name''
+    auto event_mctracks = storage->get_data<event_mctrack>("mcreco");
+    
+    
+    //event_mctracks is a vector of the mctrack tracks
+    //std::cout << " I see " << event_mctracks->size() << " in this event\n";
+        
+    for( int i = 0; i < event_mctracks->size(); i++ ) {
+      
+      auto track = event_mctracks->at(i);
+      
+      // is this track a muon or not?
+      if( track.PdgCode() != 13 ) {
+	//ignore this iteration of the loop (ignore this track)
+	continue;
+      }
+      
+  
+      //std::cout << "On track " << i << " and particle type is " << track.PdgCode() << "\n";
+      
+      double muon_energy = track.Start().E();
+      
+      _muon_E->Fill(muon_energy);
+      
+    }
+    
     //
     // Do your event-by-event analysis here. This function is called for 
     // each event in the loop. You have "storage" pointer which contains 
@@ -49,6 +81,8 @@ namespace larlite {
   bool MichelSpectrum::finalize() {
     
     std::cout << "I am being finalized\n";
+    
+    _muon_E->Write();
     
     // This function is called at the end of event loop.
     // Do all variable finalization you wish to do here.

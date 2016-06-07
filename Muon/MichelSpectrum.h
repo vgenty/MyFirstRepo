@@ -17,6 +17,14 @@
 
 #include "Analysis/ana_base.h"
 
+// dataformat is where the classes are
+//-->mctrack is the class we are requesting out of the datafile
+//-->so we have to tell our program what information is inside mctrack
+#include "DataFormat/mctrack.h"
+
+//where is TH1D?, it's here
+#include "TH1D.h"
+
 namespace larlite {
   /**
      \class MichelSpectrum
@@ -49,6 +57,8 @@ namespace larlite {
 
   private:
     int _event_counter;
+    TH1D * _muon_E;
+    
     
   };
 }
